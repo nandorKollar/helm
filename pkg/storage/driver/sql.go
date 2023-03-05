@@ -77,6 +77,10 @@ type SQL struct {
 	Log func(string, ...interface{})
 }
 
+func (s *SQL) CanPushDownLabelSelector() bool {
+	return false
+}
+
 // Name returns the name of the driver.
 func (s *SQL) Name() string {
 	return SQLDriverName
@@ -234,7 +238,7 @@ func (s *SQL) Get(key string) (*rspb.Release, error) {
 }
 
 // List returns the list of all releases such that filter(release) == true
-func (s *SQL) List(filter func(*rspb.Release) bool) ([]*rspb.Release, error) {
+func (s *SQL) List(filter func(*rspb.Release) bool, selector string) ([]*rspb.Release, error) {
 	sb := s.statementBuilder.
 		Select(sqlReleaseTableBodyColumn).
 		From(sqlReleaseTableName).

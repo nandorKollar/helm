@@ -284,6 +284,10 @@ type MaxHistoryMockDriver struct {
 	Driver driver.Driver
 }
 
+func (d *MaxHistoryMockDriver) CanPushDownLabelSelector() bool {
+	return false
+}
+
 func NewMaxHistoryMockDriver(d driver.Driver) *MaxHistoryMockDriver {
 	return &MaxHistoryMockDriver{Driver: d}
 }
@@ -299,8 +303,8 @@ func (d *MaxHistoryMockDriver) Delete(key string) (*rspb.Release, error) {
 func (d *MaxHistoryMockDriver) Get(key string) (*rspb.Release, error) {
 	return d.Driver.Get(key)
 }
-func (d *MaxHistoryMockDriver) List(filter func(*rspb.Release) bool) ([]*rspb.Release, error) {
-	return d.Driver.List(filter)
+func (d *MaxHistoryMockDriver) List(filter func(*rspb.Release) bool, selector string) ([]*rspb.Release, error) {
+	return d.Driver.List(filter, selector)
 }
 func (d *MaxHistoryMockDriver) Query(labels map[string]string) ([]*rspb.Release, error) {
 	return d.Driver.Query(labels)

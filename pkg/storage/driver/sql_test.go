@@ -114,7 +114,7 @@ func TestSQLList(t *testing.T) {
 	// list all deleted releases
 	del, err := sqlDriver.List(func(rel *rspb.Release) bool {
 		return rel.Info.Status == rspb.StatusUninstalled
-	})
+	}, "")
 	// check
 	if err != nil {
 		t.Errorf("Failed to list deleted: %v", err)
@@ -126,7 +126,7 @@ func TestSQLList(t *testing.T) {
 	// list all deployed releases
 	dpl, err := sqlDriver.List(func(rel *rspb.Release) bool {
 		return rel.Info.Status == rspb.StatusDeployed
-	})
+	}, "")
 	// check
 	if err != nil {
 		t.Errorf("Failed to list deployed: %v", err)
@@ -138,7 +138,7 @@ func TestSQLList(t *testing.T) {
 	// list all superseded releases
 	ssd, err := sqlDriver.List(func(rel *rspb.Release) bool {
 		return rel.Info.Status == rspb.StatusSuperseded
-	})
+	}, "")
 	// check
 	if err != nil {
 		t.Errorf("Failed to list superseded: %v", err)

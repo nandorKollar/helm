@@ -106,7 +106,7 @@ func TestMemoryList(t *testing.T) {
 	// list all deployed releases
 	dpl, err := ts.List(func(rel *rspb.Release) bool {
 		return rel.Info.Status == rspb.StatusDeployed
-	})
+	}, "")
 	// check
 	if err != nil {
 		t.Errorf("Failed to list deployed releases: %s", err)
@@ -118,7 +118,7 @@ func TestMemoryList(t *testing.T) {
 	// list all superseded releases
 	ssd, err := ts.List(func(rel *rspb.Release) bool {
 		return rel.Info.Status == rspb.StatusSuperseded
-	})
+	}, "")
 	// check
 	if err != nil {
 		t.Errorf("Failed to list superseded releases: %s", err)
@@ -130,7 +130,7 @@ func TestMemoryList(t *testing.T) {
 	// list all deleted releases
 	del, err := ts.List(func(rel *rspb.Release) bool {
 		return rel.Info.Status == rspb.StatusUninstalled
-	})
+	}, "")
 	// check
 	if err != nil {
 		t.Errorf("Failed to list deleted releases: %s", err)

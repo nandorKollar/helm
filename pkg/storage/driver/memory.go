@@ -44,6 +44,10 @@ type Memory struct {
 	cache map[string]memReleases
 }
 
+func (mem *Memory) CanPushDownLabelSelector() bool {
+	return false
+}
+
 // NewMemory initializes a new memory driver.
 func NewMemory() *Memory {
 	return &Memory{cache: map[string]memReleases{}, namespace: "default"}
@@ -83,7 +87,7 @@ func (mem *Memory) Get(key string) (*rspb.Release, error) {
 }
 
 // List returns the list of all releases such that filter(release) == true
-func (mem *Memory) List(filter func(*rspb.Release) bool) ([]*rspb.Release, error) {
+func (mem *Memory) List(filter func(*rspb.Release) bool, selector string) ([]*rspb.Release, error) {
 	defer unlock(mem.rlock())
 
 	var ls []*rspb.Release

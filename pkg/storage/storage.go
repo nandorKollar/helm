@@ -89,7 +89,7 @@ func (s *Storage) Delete(name string, version int) (*rspb.Release, error) {
 // storage backend fails to retrieve the releases.
 func (s *Storage) ListReleases() ([]*rspb.Release, error) {
 	s.Log("listing all releases in storage")
-	return s.Driver.List(func(_ *rspb.Release) bool { return true })
+	return s.Driver.List(func(_ *rspb.Release) bool { return true }, "")
 }
 
 // ListUninstalled returns all releases with Status == UNINSTALLED. An error is returned
@@ -98,7 +98,7 @@ func (s *Storage) ListUninstalled() ([]*rspb.Release, error) {
 	s.Log("listing uninstalled releases in storage")
 	return s.Driver.List(func(rls *rspb.Release) bool {
 		return relutil.StatusFilter(rspb.StatusUninstalled).Check(rls)
-	})
+	}, "")
 }
 
 // ListDeployed returns all releases with Status == DEPLOYED. An error is returned
@@ -107,7 +107,7 @@ func (s *Storage) ListDeployed() ([]*rspb.Release, error) {
 	s.Log("listing all deployed releases in storage")
 	return s.Driver.List(func(rls *rspb.Release) bool {
 		return relutil.StatusFilter(rspb.StatusDeployed).Check(rls)
-	})
+	}, "")
 }
 
 // Deployed returns the last deployed release with the provided release name, or

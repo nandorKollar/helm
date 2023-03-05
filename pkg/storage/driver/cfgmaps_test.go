@@ -96,7 +96,7 @@ func TestConfigMapList(t *testing.T) {
 	// list all deleted releases
 	del, err := cfgmaps.List(func(rel *rspb.Release) bool {
 		return rel.Info.Status == rspb.StatusUninstalled
-	})
+	}, "")
 	// check
 	if err != nil {
 		t.Errorf("Failed to list deleted: %s", err)
@@ -108,7 +108,7 @@ func TestConfigMapList(t *testing.T) {
 	// list all deployed releases
 	dpl, err := cfgmaps.List(func(rel *rspb.Release) bool {
 		return rel.Info.Status == rspb.StatusDeployed
-	})
+	}, "")
 	// check
 	if err != nil {
 		t.Errorf("Failed to list deployed: %s", err)
@@ -120,13 +120,33 @@ func TestConfigMapList(t *testing.T) {
 	// list all superseded releases
 	ssd, err := cfgmaps.List(func(rel *rspb.Release) bool {
 		return rel.Info.Status == rspb.StatusSuperseded
-	})
+	}, "")
 	// check
 	if err != nil {
 		t.Errorf("Failed to list superseded: %s", err)
 	}
 	if len(ssd) != 2 {
 		t.Errorf("Expected 2 superseded, got %d", len(ssd))
+	}
+
+	// list all deleted releases with label selectors
+	delSel, err := cfgmaps.List(func(rel *rspb.Release) bool { return true }, "status=uninstalled")
+	// check
+	if err != nil {
+		t.Errorf("Failed to list uninstalled: %s", err)
+	}
+	if len(delSel) != 2 {
+		t.Errorf("Expected 2 uninstalled, got %d:\n%v\n", len(del), del)
+	}
+
+	// list all deleted or deployed releases with label selectors
+	dplOrDelSel, err := cfgmaps.List(func(rel *rspb.Release) bool { return true }, "status in (uninstalled, deployed)")
+	// check
+	if err != nil {
+		t.Errorf("Failed to list uninstalled or deployed: %s", err)
+	}
+	if len(dplOrDelSel) != 4 {
+		t.Errorf("Expected 4 uninstalled or deployed, got %d:\n%v\n", len(del), del)
 	}
 }
 

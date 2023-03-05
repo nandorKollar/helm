@@ -45,6 +45,10 @@ type ConfigMaps struct {
 	Log  func(string, ...interface{})
 }
 
+func (cfgmaps *ConfigMaps) CanPushDownLabelSelector() bool {
+	return true
+}
+
 // NewConfigMaps initializes a new ConfigMaps wrapping an implementation of
 // the kubernetes ConfigMapsInterface.
 func NewConfigMaps(impl corev1.ConfigMapInterface) *ConfigMaps {
@@ -85,9 +89,13 @@ func (cfgmaps *ConfigMaps) Get(key string) (*rspb.Release, error) {
 // List fetches all releases and returns the list releases such
 // that filter(release) == true. An error is returned if the
 // configmap fails to retrieve the releases.
-func (cfgmaps *ConfigMaps) List(filter func(*rspb.Release) bool) ([]*rspb.Release, error) {
+func (cfgmaps *ConfigMaps) List(filter func(*rspb.Release) bool, selector string) ([]*rspb.Release, error) {
 	lsel := kblabels.Set{"owner": "helm"}.AsSelector()
-	opts := metav1.ListOptions{LabelSelector: lsel.String()}
+	labelSelector := lsel.String()
+	if selector != "" {
+		labelSelector += "," + selector
+	}
+	opts := metav1.ListOptions{LabelSelector: labelSelector}
 
 	list, err := cfgmaps.impl.List(context.Background(), opts)
 	if err != nil {
@@ -220,13 +228,12 @@ func (cfgmaps *ConfigMaps) Delete(key string) (rls *rspb.Release, err error) {
 //
 // The following labels are used within each configmap:
 //
-//    "modifiedAt"     - timestamp indicating when this configmap was last modified. (set in Update)
-//    "createdAt"      - timestamp indicating when this configmap was created. (set in Create)
-//    "version"        - version of the release.
-//    "status"         - status of the release (see pkg/release/status.go for variants)
-//    "owner"          - owner of the configmap, currently "helm".
-//    "name"           - name of the release.
-//
+//	"modifiedAt"     - timestamp indicating when this configmap was last modified. (set in Update)
+//	"createdAt"      - timestamp indicating when this configmap was created. (set in Create)
+//	"version"        - version of the release.
+//	"status"         - status of the release (see pkg/release/status.go for variants)
+//	"owner"          - owner of the configmap, currently "helm".
+//	"name"           - name of the release.
 func newConfigMapsObject(key string, rls *rspb.Release, lbs labels) (*v1.ConfigMap, error) {
 	const owner = "helm"
 

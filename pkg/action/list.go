@@ -166,7 +166,7 @@ func (l *List) Run() ([]*release.Release, error) {
 		}
 
 		return true
-	})
+	}, l.Selector)
 
 	if err != nil {
 		return nil, err
@@ -187,12 +187,16 @@ func (l *List) Run() ([]*release.Release, error) {
 	// latest releases, otherwise outdated entries can be returned
 	results = l.filterStateMask(results)
 
-	// Skip anything that doesn't match the selector
-	selectorObj, err := labels.Parse(l.Selector)
-	if err != nil {
-		return nil, err
+	// If storage layer can't perform label selector filtering,
+	// then fall back to client side filtering
+	if !l.cfg.Releases.CanPushDownLabelSelector() {
+		// Skip anything that doesn't match the selector
+		selectorObj, err := labels.Parse(l.Selector)
+		if err != nil {
+			return nil, err
+		}
+		results = l.filterSelector(results, selectorObj)
 	}
-	results = l.filterSelector(results, selectorObj)
 
 	// Unfortunately, we have to sort before truncating, which can incur substantial overhead
 	l.sort(results)
